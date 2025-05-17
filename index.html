@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        padding: 20px 0px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #FFFFFF;
+        padding: 5px;
+        margin: 0px;
+        background-color: #401D75;
+        border-radius: 8px;
+        font-family: 'Courier New', Courier, monospace;
+    }
+
+    .constainer {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-top: 20px;
+        width: 100%;
+        gap: 10px;
+    }
+
+    #texto-original,
+    #texto-cifrado {
+        width: 100%;
+        height: 200px;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        resize: none;
+    }
+
+    #chave {
+        max-width: 200px;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+
+    .button-group {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    #cifrar,
+    #decifrar {
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        background-color: #401D75;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .constainer02 {
+        max-width: 600px;
+        margin: 0 auto;
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .result-group {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-top: 20px;
+        width: 100%;
+        gap: 10px;
+    }
+
+    #result {
+        width: 100%;
+        height: 100px;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        resize: none;
+        overflow-y: auto;
+        max-height: 300px;
+        scroll-behavior: smooth;
+    }
+</style>
+
+<body>
+    <div class="constainer">
+        <h1>CIFRA VIGENERE</h1>
+        <div class="input-group">
+            <textarea id="texto-original" placeholder="Texto Original"></textarea>
+            <textarea id="texto-cifrado" placeholder="Texto Cifrado"></textarea>
+        </div>
+        <input id="chave" rows="4" cols="50" placeholder="Chave"></textarea>
+        <div class="button-group">
+            <button id="cifrar" onclick="cifrar()">Cifrar</button>
+            <button id="decifrar" onclick="decifrar()">Decifrar</button>
+        </div>
+    </div>
+
+    <div class="constainer02">
+        <h1>Resultado</h1>
+        <h2 id="result"></h2>
+    </div>
+</body>
+<script>
+    const alfabeto = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ,;._#*"-+';
+    const textareaOriginal = document.getElementById('texto-original');
+    const textareaCifrado = document.getElementById('texto-cifrado');
+    const textareaChave = document.getElementById('chave');
+
+    let textoOriginal = textareaOriginal.value;
+    let textoCifrado = textareaCifrado.value;
+    let chaveDigitada = textareaChave.value;
+
+    textareaOriginal.addEventListener('input', () => {
+        textoOriginal = textareaOriginal.value;
+    });
+
+    textareaCifrado.addEventListener('input', () => {
+        textoCifrado = textareaCifrado.value;
+    });
+
+    textareaChave.addEventListener('input', () => {
+        chaveDigitada = textareaChave.value;
+    });
+
+    const verificarChavePalavraNoAlfabeto = (texto) => {
+        for (let i = 0; i < texto.length; i++) {
+            if (!alfabeto.includes(texto[i])) {
+                alert(`A chave ou o texto contém caracteres inválidos: ${texto[i]}`);
+                return false
+            }
+        }
+        return true
+    }
+
+    const repetirChave = (chave, tamanho) => {
+        let chaveRepetida = ''
+        for (let i = 0; i < tamanho; i++) {
+            chaveRepetida += chave[i % chave.length]
+        }
+        return chaveRepetida
+    }
+
+    const cifraVigenere = (texto, chave) => {
+        let resultado = ''
+        for (let i = 0; i < texto.length; i++) {
+            const letraTexto = alfabeto.indexOf(texto[i])
+            const letraChave = alfabeto.indexOf(chave[i])
+            const novaLetra = (letraTexto + letraChave) % alfabeto.length
+            resultado += alfabeto[novaLetra]
+        }
+        return resultado
+    }
+
+    const decifraVigenere = (texto, chave) => {
+        let resultado = ''
+        for (let i = 0; i < texto.length; i++) {
+            const letraTexto = alfabeto.indexOf(texto[i])
+            const letraChave = alfabeto.indexOf(chave[i])
+            const novaLetra = (letraTexto - letraChave + alfabeto.length) % alfabeto.length
+            resultado += alfabeto[novaLetra]
+        }
+        return resultado
+    }
+
+    const cifrar = () => {
+        console.log(textoOriginal, textoCifrado, chaveDigitada)
+        if (textoOriginal.length === 0) {
+            alert('Texto original não pode ser vazio')
+            return
+        }
+        if (chaveDigitada.length === 0) {
+            alert('Chave não pode ser vazia')
+            return
+        }
+        if (verificarChavePalavraNoAlfabeto(chaveDigitada) && verificarChavePalavraNoAlfabeto(textoOriginal)) {
+            const chaveRepetida = repetirChave(chaveDigitada, textoOriginal.length)
+            const resultado = cifraVigenere(textoOriginal, chaveRepetida)
+            document.getElementById('result').innerText = resultado
+        }
+    }
+
+    const decifrar = () => {
+        if(textoCifrado.length === 0) {
+            alert('Texto cifrado não pode ser vazio')
+            return
+        }
+        if (chaveDigitada.length === 0) {
+            alert('Chave não pode ser vazia')
+            return
+        }
+        if (verificarChavePalavraNoAlfabeto(chaveDigitada) && verificarChavePalavraNoAlfabeto(textoCifrado)) {
+            const chaveRepetida = repetirChave(chaveDigitada, textoCifrado.length)
+            const resultado = decifraVigenere(textoCifrado, chaveRepetida)
+            document.getElementById('result').innerText = resultado
+        }
+    }
+</script>
+
+</html>
